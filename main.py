@@ -2,21 +2,54 @@ import csv
 from collections import defaultdict
 from pprint import pprint
 
-def calculate_portfolio_value(portfolio, market_state):
-    pf_value = 0
-    for game in portfolio.keys():
-        pf_value += market_state[game] * portfolio[game]
+class Stock:
+    def __init__(self, name, price):
+        self.name = name
+        self.share_price = price
+        self.total_distributed = 1
     
-    return pf_value
+    def get_market_cap(self):
+        return self.share_price * self.total_distributed
 
+class Shareholder:
+    def __init__(self, name):
+        self.name = name
+        self.portfolio = defaultdict(int)
+    
+    def update_portfolio(self, stock_name):
+        self.portfolio[stock_name] += 1
+    
+    def calculate_portfolio_value(self, market):
+        pf_total_value = 0
+        for stock in self.portfolio:
+            pf_total_value += market.get_stock_value(stock) * self.portfolio[stock]
+        
+        return pf_total_value
+
+class Market:
+    def __init__(self):
+        self.total_value = 0
+        self.stocks = {}
+    
+    def update_stock(self, stock_name, votes):
+        if stock_name in self.stocks:
+            self.stocks[stock_name].share_price += votes
+            self.stocks[stock_name].total_distributed += 1
+        else:
+            self.stocks[stock_name] = Stock(stock_name, votes)
+        
+        self.total_value += votes
+    
+    def clear_stock_value(self, stock_name):
+        self.total_value -= self.stocks[stock_name].share_price
+        self.stocks[stock_name].share_price = 0
+    
+    def get_stock_value(self, stock_name):
+        return self.stocks[stock_name].share_price
 
 def main():
-    historical_market = []
-    historial_owners = []
-    market = {}
-    owners = {}
-
-
+    market = Market()
+    shareholders = {}
 
     with open('data/nomination_data.csv', 'r', newline='') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
@@ -29,41 +62,26 @@ def main():
             victory = True if game[3] == "Y" else False
             nominated_session = int(game[4])
 
-            # capture market state for future use
-            if session_number != nominated_session:
-                historical_market.append(dict(market))
-                historial_owners.append(dict(owners))
-                session_number = nominated_session
+            market.update_stock(game_name, votes)
 
-
-            if game_name in market.keys():
-                market[game_name] += votes
-            else:
-                market[game_name] = votes
-
-            if nominator in owners.keys():
-                if game_name in owners[nominator].keys():
-                    owners[nominator][game_name] += 1
-                else:
-                    owners[nominator][game_name] = 1
-            else:
-                owners[nominator] = {game_name: 1}
-
+            if nominator not in shareholders:
+                shareholders[nominator] = Shareholder(nominator)
+            shareholders[nominator].update_portfolio(game_name)
+                
             if victory:
-                market[game_name] = 0
+                market.clear_stock_value(game_name)
 
-    money = {}
-    for owner in owners.keys():
-        owner_pf = owners[owner]
-        owner_pf_value = calculate_portfolio_value(owner_pf, market)
-        money[owner] = owner_pf_value
+    for sh in shareholders.values():
+        print(sh.name)
+        print(f"Total portfolio value: {sh.calculate_portfolio_value(market)}")
+        print("Portfolio held:")
+        pprint(dict(sh.portfolio))
+        print()
 
         
 
-    pprint(market)
-    pprint(owners)
-    pprint(money)
-    # pprint(dict(money))
+    # pprint(market)
+    # pprint(owners)
 
 
 if __name__ == "__main__":
