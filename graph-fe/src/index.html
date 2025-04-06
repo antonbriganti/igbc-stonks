@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>IGBC Stonk Market</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="mytabs">
+        <!-- stock market tab -->
+        <input type="radio" id="tabfree" name="mytabs" checked="checked">
+        <label for="tabfree">Stock Market</label>
+        <div class="tab">
+            <div class="container">
+                <div class="chart-container">
+                    <canvas id="stockChart"></canvas>
+                </div>
+                <div class="stock-filter-container">
+                    <div class="stock-filter-header">
+                        <h3>Filter Stocks</h3>
+                        <div class="stock-filter-actions">
+                            <button id="selectAll">Select All</button>
+                            <button id="selectNone">Select None</button>
+                            <button id="sortAlphabetical">Sort A-Z</button>
+                        </div>
+                    </div>
+                    <div id="stockDropdown" class="stock-dropdown">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- portfolio tab -->
+        <input type="radio" id="tabsilver" name="mytabs">
+        <label for="tabsilver">Portfolios</label>
+        <div class="tab">
+            <div class="container">
+                <div class="chart-container">
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script type="module" src="stock-history.js"></script>
+    <script type="module" src="portfolios.js"></script>
+  </body>
+</html>
