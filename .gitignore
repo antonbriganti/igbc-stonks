@@ -149,3 +149,4 @@ dist
 .DS_store
 
 deploy*.sh
+*data.json
