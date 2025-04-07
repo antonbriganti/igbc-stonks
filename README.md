@@ -1,5 +1,6 @@
 # igbc stonks 📈
 commodify everything, even your passions. value is the only thing that matters, the number has to go up. 
+
 a.k.a. a fun way to show off nomination data for indie game book club (IGBC)
 
 ## rules 📝
