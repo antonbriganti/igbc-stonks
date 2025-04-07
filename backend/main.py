@@ -109,14 +109,14 @@ def main():
     
     market.save_history(session_number)
 
-    with open('graph-fe/stockdata.json', 'w') as stockdata:
+    with open('frontend/stockdata.json', 'w') as stockdata:
         json.dump(market.stock_history, stockdata)
     
     shareholder_reports = []
     for sh in market.shareholders.values():
         shareholder_reports.append(shareholder_report(sh, market))
     
-    with open('graph-fe/sharedata.json', 'w') as sharedata:
+    with open('frontend/sharedata.json', 'w') as sharedata:
         json.dump(shareholder_reports, sharedata)
 
     # sorted(market.stocks.values(), key=lambda x: x.get_market_cap(), reverse=True)
