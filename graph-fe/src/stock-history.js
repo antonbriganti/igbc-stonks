@@ -1,12 +1,18 @@
 import Chart from 'chart.js/auto'
-// Global variables
-let stockChart = null;
-let originalDatasets = [];
-let stockData = null;
+
+// Generate random colours for stocks
+function getRandomColour() {
+    const letters = '0123456789ABCDEF';
+    let colour = '#';
+    for (let i = 0; i < 6; i++) {
+        colour += letters[Math.floor(Math.random() * 16)];
+    }
+    return colour;
+}
 
 // Function to create the chart
-function createChart(data) {
-    stockData = data;
+function createChart(stockData) {
+
     // Get all unique sessions from the data
     const sessions = new Set();
     Object.values(stockData).forEach(stockSessions => {
@@ -18,16 +24,6 @@ function createChart(data) {
     // Convert to sorted array
     const sortedSessions = Array.from(sessions).sort((a, b) => a - b);
 
-    // Generate random colors for stocks
-    function getRandomColor() {
-        const letters = '0123456789ABCDEF';
-        let color = '#';
-        for (let i = 0; i < 6; i++) {
-            color += letters[Math.floor(Math.random() * 16)];
-        }
-        return color;
-    }
-
     // Sort stock names alphabetically
     const sortedStockNames = Object.keys(stockData).sort();
     
@@ -35,7 +31,7 @@ function createChart(data) {
     const datasets = [];
     for (const stockName of sortedStockNames) {
         const sessionPrices = stockData[stockName];
-        const color = getRandomColor();
+        const colour = getRandomColour();
         
         // Create price array in order of sessions
         const prices = sortedSessions.map(session => 
@@ -45,17 +41,14 @@ function createChart(data) {
         datasets.push({
             label: stockName,
             data: prices,
-            borderColor: color,
-            backgroundColor: color + '20', // 20 is hex for 12% opacity
-            pointBackgroundColor: color,
+            borderColour: colour,
+            backgroundColour: colour + '20', // 20 is hex for 12% opacity
+            pointBackgroundColour: colour,
             pointRadius: 4,
             tension: 0.1,
             hidden: false
         });
     }
-    
-    // Store original datasets for filtering
-    originalDatasets = [...datasets];
     
     // Create the chart
     // Select the element from the page and add it
@@ -94,19 +87,13 @@ function createChart(data) {
                         title: function(tooltipItems) {
                             return 'Session ' + tooltipItems[0].label;
                         },
+
+                        // get game(s) at point + value 
                         label: function(context) {
                             const label = context.dataset.label || '';
                             const value = context.parsed.y || 0;
                             return `${label}: ${value.toFixed(0)} cryo`;
                         },
-                        // Override the footer to be empty
-                        footer: function() {
-                            return '';
-                        },
-                        // Filter tooltipItems to only include the item being hovered
-                        beforeBody: function(tooltipItems) {
-                            return '';
-                        }
                     },
                     titleFont: {
                         size: 16

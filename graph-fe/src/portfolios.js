@@ -1,7 +1,7 @@
 import Chart from 'chart.js/auto'
 
-function getColor(index, opacity) {
-    const colors = [
+function getColour(index, opacity) {
+    const colours = [
         `rgba(54, 162, 235, ${opacity})`, // blue
         `rgba(255, 99, 132, ${opacity})`, // red
         `rgba(255, 206, 86, ${opacity})`, // yellow
@@ -14,15 +14,11 @@ function getColor(index, opacity) {
         `rgba(95, 162, 206, ${opacity})` // light blue
     ];
 
-    return colors[index % colors.length];
+    return colours[index % colours.length];
 }
 
-// Example data - multiple portfolios with dynamic stocks
-var fs = require('fs');
-const portfoliosData = JSON.parse(fs.readFileSync('sharedata.json', 'utf8'))
-
-// Process the data to create datasets
-function processPortfolioData(portfoliosData) {
+function convertDataIntoDataset(portfoliosData){
+    // convert data to datasets
     // Get all unique stock names across all portfolios
     const allStocks = new Set();
     portfoliosData.forEach(portfolioData => {
@@ -35,6 +31,8 @@ function processPortfolioData(portfoliosData) {
     const stocksArray = Array.from(allStocks).sort();
 
     // Create a dataset for each stock
+    // Each dataset contains an array which says what the value is the stock in the person's portfolio
+    // The person is determined via array index, e.g. 0 is Julian
     const datasets = stocksArray.map((stock, index) => {
         const data = portfoliosData.map(portfolioData => {
             if (portfolioData.portfolio[stock]) {
@@ -46,11 +44,46 @@ function processPortfolioData(portfoliosData) {
         return {
             label: stock,
             data: data,
-            backgroundColor: getColor(index, 0.7),
-            borderColor: getColor(index, 1),
+            backgroundColour: getColour(index, 0.7),
+            borderColour: getColour(index, 1),
             borderWidth: 1
         };
     });
+
+    return datasets;
+}
+
+function createStockInfo(portfoliosData){
+    let stocksInfo = {}
+    portfoliosData.forEach(portfolioData => {
+        const portfolioName = portfolioData.name;
+
+        if (!stocksInfo[portfolioName]) {
+            stocksInfo[portfolioName] = {};
+        }
+
+        Object.keys(portfolioData.portfolio).forEach(stock => {
+            const shares = portfolioData.portfolio[stock]['shares held'];
+            const value = portfolioData.portfolio[stock]['value'];
+            const pricePerShare = value / shares;
+
+            stocksInfo[portfolioName][stock] = {
+                shares: shares,
+                value: value,
+                pricePerShare: pricePerShare
+            };
+        });
+    });
+
+    return stocksInfo
+}
+
+// Create the chart
+function createChart(portfoliosData) {
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    
+    const datasets = convertDataIntoDataset(portfoliosData)
+    console.log(datasets)
 
     // Get labels from portfolio names
     const labels = portfoliosData.map(portfolio => portfolio.name);
@@ -58,48 +91,9 @@ function processPortfolioData(portfoliosData) {
     // Calculate the total values for display
     const totals = portfoliosData.map(portfolio => portfolio.portfolio_value);
 
-    return {
-        datasets,
-        labels,
-        totals,
-        stocksArray
-    };
-}
+    const stocksInfo = createStockInfo(portfoliosData)
 
-// Process data
-const {
-    datasets,
-    labels,
-    totals,
-    stocksArray
-} = processPortfolioData(portfoliosData);
-
-// Create a mapping of stocks to price per share and shares info
-const stocksInfo = {};
-portfoliosData.forEach(portfolioData => {
-    const portfolioName = portfolioData.name;
-
-    if (!stocksInfo[portfolioName]) {
-        stocksInfo[portfolioName] = {};
-    }
-
-    Object.keys(portfolioData.portfolio).forEach(stock => {
-        const shares = portfolioData.portfolio[stock]['shares held'];
-        const value = portfolioData.portfolio[stock]['value'];
-        const pricePerShare = value / shares;
-
-        stocksInfo[portfolioName][stock] = {
-            shares: shares,
-            value: value,
-            pricePerShare: pricePerShare
-        };
-    });
-});
-
-// Create the chart
-function createChart() {
-    const ctx = document.getElementById('portfolioChart').getContext('2d');
-    const portfolioChart = new Chart(ctx, {
+    portfolioChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
@@ -163,4 +157,8 @@ function createChart() {
         }
     });
 }
-createChart()
+
+// load in portfolio file + create chart from it
+var fs = require('fs');
+const portfoliosData = JSON.parse(fs.readFileSync('sharedata.json', 'utf8'))
+createChart(portfoliosData)
