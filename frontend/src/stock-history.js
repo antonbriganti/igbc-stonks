@@ -92,7 +92,7 @@ function createChart(stockData) {
                         label: function(context) {
                             const label = context.dataset.label || '';
                             const value = context.parsed.y || 0;
-                            return `${label}: ${value.toFixed(0)} cryo`;
+                            return `${label}: ${value.toFixed(0)} wowza(s)`;
                         },
                     },
                     titleFont: {
@@ -117,7 +117,7 @@ function createChart(stockData) {
                 y: {
                     title: {
                         display: true,
-                        text: 'Price (Cryo)'
+                        text: 'Price (wowza(s))'
                     }
                 }
             }

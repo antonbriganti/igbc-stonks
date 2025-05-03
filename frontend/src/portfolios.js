@@ -114,7 +114,7 @@ function createChart(portfoliosData) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Value (cryo)'
+                        text: 'Value (wowza(s))'
                     }
                 }
             },
@@ -131,7 +131,7 @@ function createChart(portfoliosData) {
                         afterTitle: function(context) {
                             const portfolioIndex = context[0].dataIndex;
                             const portfolioName = labels[portfolioIndex];
-                            return `Total Value: ${totals[portfolioIndex]} cryo`;
+                            return `Total Value: ${totals[portfolioIndex]} wowza(s)`;
                         },
                         label: function(context) {
                             const stockName = context.dataset.label;
@@ -141,8 +141,8 @@ function createChart(portfoliosData) {
                             if (stocksInfo[portfolioName] && stocksInfo[portfolioName][stockName]) {
                                 const info = stocksInfo[portfolioName][stockName];
                                 return [
-                                    `${stockName}: ${info.value} cryo`,
-                                    `Price per Share: ${info.pricePerShare} cryo`,
+                                    `${stockName}: ${info.value} wowza(s)`,
+                                    `Price per Share: ${info.pricePerShare} wowza(s)`,
                                     `Shares Held: ${info.shares}`
                                 ];
                             }
